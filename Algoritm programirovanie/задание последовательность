@@ -1,0 +1,124 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        // Пример последовательности
+        List<int> sequence = new List<int> { 1, 2, 2, 4, 4, 4, 1, 2, 2, 6, 6 };
+        
+        // 1. Определение минимального размера подпоследовательности, состоящей из единицы
+        int minSizeOfOnes = FindMinSubsequenceSizeOfOnes(sequence);
+        Console.WriteLine("Минимальный размер подпоследовательности из единиц: " + minSizeOfOnes);
+
+        // 2. Определение максимального размера подпоследовательности, состоящей из одинаковых четных элементов
+        int maxSizeOfEvenSubsequence = FindMaxSubsequenceSizeOfEven(sequence);
+        Console.WriteLine("Максимальный размер подпоследовательности из одинаковых четных элементов: " + maxSizeOfEvenSubsequence);
+
+        // 3. Определение максимальной суммы подпоследовательности, состоящей из четных элементов
+        int maxSumOfEvenSubsequence = FindMaxSumOfEvenSubsequence(sequence);
+        Console.WriteLine("Максимальная сумма подпоследовательности из четных элементов: " + maxSumOfEvenSubsequence);
+    }
+
+    static int FindMinSubsequenceSizeOfOnes(List<int> sequence)
+    {
+        int minSize = int.MaxValue;
+        int currentCount = 0;
+
+        foreach (var num in sequence)
+        {
+            if (num == 1)
+            {
+                currentCount++;
+            }
+            else
+            {
+                if (currentCount > 0 && currentCount < minSize)
+                {
+                    minSize = currentCount;
+                }
+                currentCount = 0;
+            }
+        }
+        
+        // Обработка случая, когда последовательность завершается единицами
+        if (currentCount > 0 && currentCount < minSize)
+        {
+            minSize = currentCount;
+        }
+
+        return minSize == int.MaxValue ? 0 : minSize; // Если не найдены единицы, возвращаем 0
+    }
+
+    static int FindMaxSubsequenceSizeOfEven(List<int> sequence)
+    {
+        int maxSize = 0, currentSize = 0, lastEven = int.MinValue;
+
+        foreach (var num in sequence)
+        {
+            if (num % 2 == 0)
+            {
+                if (num == lastEven)
+                {
+                    currentSize++;
+                }
+                else
+                {
+                    if (currentSize > maxSize)
+                    {
+                        maxSize = currentSize;
+                    }
+                    currentSize = 1; // Начинаем с текущего элемента
+                    lastEven = num;
+                }
+            }
+            else
+            {
+                if (currentSize > maxSize)
+                {
+                    maxSize = currentSize;
+                }
+                currentSize = 0; // Сбрасываем при встрече нечетного числа
+                lastEven = int.MinValue; // Сбрасываем последний четный элемент
+            }
+        }
+
+        // Обработка конца последовательности
+        if (currentSize > maxSize)
+        {
+            maxSize = currentSize;
+        }
+
+        return maxSize;
+    }
+
+    static int FindMaxSumOfEvenSubsequence(List<int> sequence)
+    {
+        int maxSum = 0, currentSum = 0;
+
+        foreach (var num in sequence)
+        {
+            if (num % 2 == 0)
+            {
+                currentSum += num;
+            }
+            else
+            {
+                if (currentSum > maxSum)
+                {
+                    maxSum = currentSum;
+                }
+                currentSum = 0; // Сбросить сумму при встрече нечетного числа
+            }
+        }
+
+        // Обработка конца последовательности
+        if (currentSum > maxSum)
+        {
+            maxSum = currentSum;
+        }
+
+        return maxSum;
+    }
+}
