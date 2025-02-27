@@ -1,0 +1,114 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Введите размерность массива m (m x m): ");
+        int m = Convert.ToInt32(Console.ReadLine());
+
+        int[,] matrix = new int[m, m];
+
+        // 1. Генерация массива
+        for (int i = 0; i < m; i++)
+        {
+            Console.Write($"Введите элементы {i + 1}-й строки через пробел: ");
+            var input = Console.ReadLine().Split(' ').Take(m).ToArray(); // Ограничиваем ввод m элементами
+            for (int j = 0; j < m; j++)
+            {
+                matrix[i, j] = Convert.ToInt32(input[j]);
+            }
+        }
+
+        // 1. Определение пар столбцов с одинаковыми элементами
+        List<(int, int)> columnPairs = new List<(int, int)>();
+
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = i + 1; j < m; j++)
+            {
+                bool equal = true;
+                for (int k = 0; k < m; k++)
+                {
+                    if (matrix[k, i] != matrix[k, j])
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+                if (equal)
+                {
+                    columnPairs.Add((i + 1, j + 1)); // Номера столбцов с 1
+                }
+            }
+        }
+
+        Console.WriteLine("Пары столбцов с одинаковыми элементами:");
+        foreach (var pair in columnPairs)
+        {
+            Console.WriteLine($"({pair.Item1}, {pair.Item2})");
+        }
+
+        // 2. Сортировка строк по убыванию количества нулевых элементов
+        var rowZeroCounts = new List<KeyValuePair<int, int>>();
+
+        for (int i = 0; i < m; i++)
+        {
+            int zeroCount = 0;
+            for (int j = 0; j < m; j++)
+            {
+                if (matrix[i, j] == 0)
+                {
+                    zeroCount++;
+                }
+            }
+            rowZeroCounts.Add(new KeyValuePair<int, int>(i, zeroCount));
+        }
+        var sortedRows = rowZeroCounts.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+
+        Console.WriteLine("Строки, отсортированные по убыванию количества нулей:");
+        foreach (var rowIndex in sortedRows)
+        {
+            Console.WriteLine(string.Join(" ", Enumerable.Range(0, m).Select(colIndex => matrix[rowIndex, colIndex])));
+        }
+
+        // 3. Замена местами максимального и минимального элементов массива
+        int minValue = matrix[0, 0];
+        int maxValue = matrix[0, 0];
+        (int minRow, int minCol) = (0, 0);
+        (int maxRow, int maxCol) = (0, 0);
+
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < m; j++)
+            {
+                if (matrix[i, j] < minValue)
+                {
+                    minValue = matrix[i, j];
+                    (minRow, minCol) = (i, j);
+                }
+                if (matrix[i, j] > maxValue)
+                {
+                    maxValue = matrix[i, j];
+                    (maxRow, maxCol) = (i, j);
+                }
+            }
+        }
+
+        // Меняем местами
+        matrix[minRow, minCol] = maxValue;
+        matrix[maxRow, maxCol] = minValue;
+
+        Console.WriteLine("Массив после замены местами максимального и минимального элементов:");
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < m; j++)
+            {
+                Console.Write(matrix[i, j] + " ");
+            }
+            Console.WriteLine();
+        }
+    }
+}
