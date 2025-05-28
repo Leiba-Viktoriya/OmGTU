@@ -1,0 +1,108 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    class Edge : IComparable<Edge>
+    {
+        public int From { get; set; }
+        public int To { get; set; }
+        public int Length { get; set; }
+
+        public int CompareTo(Edge other)
+        {
+            return Length.CompareTo(other.Length);
+        }
+    }
+
+    class DSU
+    {
+        private int[] parent;
+        private int[] rank;
+
+        public DSU(int size)
+        {
+            parent = new int[size + 1];
+            rank = new int[size + 1];
+            for (int i = 1; i <= size; i++)
+                parent[i] = i;
+        }
+
+        public int Find(int x)
+        {
+            if (parent[x] != x)
+                parent[x] = Find(parent[x]);
+            return parent[x];
+        }
+
+        public bool Union(int x, int y)
+        {
+            int xRoot = Find(x);
+            int yRoot = Find(y);
+
+            if (xRoot == yRoot)
+                return false;
+
+            if (rank[xRoot] < rank[yRoot])
+                parent[xRoot] = yRoot;
+            else if (rank[xRoot] > rank[yRoot])
+                parent[yRoot] = xRoot;
+            else
+            {
+                parent[yRoot] = xRoot;
+                rank[xRoot]++;
+            }
+
+            return true;
+        }
+    }
+
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Введите количество хабов и возможных соединений (N M):");
+        string[] firstLine = Console.ReadLine().Split();
+        int N = int.Parse(firstLine[0]);
+        int M = int.Parse(firstLine[1]);
+
+        List<Edge> edges = new List<Edge>();
+
+        Console.WriteLine($"Введите {M} соединений в формате 'from to length':");
+        for (int i = 0; i < M; i++)
+        {
+            string[] parts = Console.ReadLine().Split();
+            int from = int.Parse(parts[0]);
+            int to = int.Parse(parts[1]);
+            int length = int.Parse(parts[2]);
+
+            edges.Add(new Edge { From = from, To = to, Length = length });
+        }
+
+        edges.Sort();
+
+        DSU dsu = new DSU(N);
+        List<Edge> result = new List<Edge>();
+        int maxLength = 0;
+
+        foreach (Edge edge in edges)
+        {
+            if (dsu.Union(edge.From, edge.To))
+            {
+                result.Add(edge);
+                if (edge.Length > maxLength)
+                    maxLength = edge.Length;
+
+                if (result.Count == N - 1)
+                    break;
+            }
+        }
+
+        Console.WriteLine("\nРезультат:");
+        Console.WriteLine(result.Count);
+        foreach (Edge edge in result)
+        {
+            Console.WriteLine($"{edge.From} {edge.To} {edge.Length}");
+        }
+
+        Console.WriteLine($"\nМаксимальная длина кабеля в сети: {maxLength}");
+    }
+}
